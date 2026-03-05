@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AFAD - Bağışlarım</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef1f7; font-size: 13px; color: #333; }
+
+  /* NAVBAR */
+  .navbar {
+    background: linear-gradient(90deg, #0a2a5e 0%, #1a4a8e 60%, #1e5aa8 100%);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 62px;
+    box-shadow: 0 2px 8px rgba(10,42,94,0.18);
+  }
+  .navbar-logo { display: flex; align-items: center; gap: 10px; }
+  .logo-box {
+    background: #cc2222;
+    color: white;
+    font-weight: 900;
+    font-size: 18px;
+    padding: 5px 10px;
+    border-radius: 3px;
+    letter-spacing: 1px;
+  }
+  .logo-text { font-size: 9px; color: #c8d8f0; line-height: 1.4; max-width: 130px; }
+  .navbar-links { display: flex; gap: 24px; font-size: 12px; font-weight: 600; }
+  .navbar-links a { text-decoration: none; color: #c8d8f0; transition: color 0.15s; }
+  .navbar-links a:hover { color: #fff; }
+  .navbar-right { display: flex; align-items: center; gap: 14px; font-size: 12px; color: #c8d8f0; }
+  .btn-hizli {
+    background: #cc2222;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+  }
+  .btn-hizli:hover { background: #b01c1c; }
+
+  /* LAYOUT */
+  .layout { display: flex; min-height: calc(100vh - 62px); }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 190px;
+    background: #fff;
+    border-right: 1px solid #dce3f0;
+    padding: 20px 0;
+    flex-shrink: 0;
+    box-shadow: 2px 0 6px rgba(10,42,94,0.04);
+  }
+  .sidebar h3 {
+    font-size: 13px;
+    font-weight: 700;
+    padding: 0 16px 12px;
+    color: #0a2a5e;
+    border-bottom: 2px solid #eef1f7;
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 16px;
+    font-size: 12.5px;
+    color: #444;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-item:hover { background: #f0f4fb; color: #1a4a8e; border-left-color: #b0c4e8; }
+  .sidebar-item.active { background: #eaf0fa; color: #0a2a5e; font-weight: 700; border-left: 3px solid #1a4a8e; }
+  .sidebar-item.new-item { background: #f0f5ff; color: #1a4a8e; border-left: 3px solid #1a4a8e; font-weight: 600; }
+  .sidebar-item.new-item:hover { background: #e2ecff; }
+  .sidebar-item .icon { font-size: 13px; width: 17px; text-align: center; }
+
+  .sidebar-accordion-btn {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 16px;
+    font-size: 12.5px;
+    color: #444;
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+    width: 100%;
+    background: none;
+    border-top: none;
+    border-right: none;
+    border-bottom: none;
+    text-align: left;
+    font-family: inherit;
+  }
+  .sidebar-accordion-btn:hover { background: #f0f4fb; color: #1a4a8e; border-left-color: #b0c4e8; }
+  .sidebar-accordion-btn.open { background: #eaf0fa; color: #0a2a5e; font-weight: 700; border-left: 3px solid #1a4a8e; }
+  .sidebar-accordion-btn .icon { font-size: 13px; width: 17px; text-align: center; }
+  .sidebar-accordion-btn .chevron {
+    margin-left: auto;
+    font-size: 10px;
+    transition: transform 0.2s;
+    color: #999;
+  }
+  .sidebar-accordion-btn.open .chevron { transform: rotate(180deg); }
+  .sidebar-accordion-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+    background: #f8fafd;
+  }
+  .sidebar-accordion-body.open { max-height: 200px; }
+  .sidebar-accordion-body .sidebar-item {
+    padding-left: 36px;
+    font-size: 12px;
+    border-left: 3px solid transparent;
+  }
+  .sidebar-divider {
+    height: 1px;
+    background: #eef1f7;
+    margin: 6px 16px;
+  }
+  .sidebar-item-danger { color: #cc2222; }
+  .sidebar-item-danger:hover { background: #fff0f0; color: #b01c1c; border-left-color: #cc2222; }
+
+  /* MAIN CONTENT */
+  .main { flex: 1; padding: 22px 24px; }
+
+  /* PAGE TITLE */
+  .page-title {
+    background: linear-gradient(90deg, #0a2a5e 0%, #1a4a8e 100%);
+    color: white;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 6px 6px 0 0;
+    letter-spacing: 0.3px;
+  }
+
+  /* STATS CARDS */
+  .stats-row {
+    display: flex;
+    margin-bottom: 18px;
+    border-radius: 0 0 6px 6px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(10,42,94,0.10);
+  }
+  .stat-card {
+    flex: 1;
+    padding: 14px 10px;
+    text-align: center;
+    color: white;
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.7;
+    border-right: 1px solid rgba(255,255,255,0.15);
+  }
+  .stat-card:nth-child(1) { background: linear-gradient(135deg, #0a2a5e, #1a4a8e); }
+  .stat-card:nth-child(2) { background: linear-gradient(135deg, #1a4a8e, #1e5aa8); }
+  .stat-card:nth-child(3) { background: linear-gradient(135deg, #1e5aa8, #2468be); }
+  .stat-card:nth-child(4) { background: linear-gradient(135deg, #2468be, #2c78d4); }
+  .stat-card:nth-child(5) { background: linear-gradient(135deg, #2c78d4, #3486e0); border-right: none; }
+  .stat-card .amount { font-size: 20px; font-weight: 800; letter-spacing: 0.5px; }
+
+  /* FILTER SECTION */
+  .filter-section {
+    background: #fff;
+    border: 1px solid #dce3f0;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(10,42,94,0.05);
+  }
+  .search-bar {
+    width: 100%;
+    padding: 8px 12px 8px 32px;
+    border: 1px solid #c8d4e8;
+    border-radius: 5px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    outline: none;
+    background: #f8fafd url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") 10px center no-repeat;
+    transition: border-color 0.2s;
+  }
+  .search-bar:focus { border-color: #1a4a8e; background-color: #fff; }
+  .filter-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+  .filter-group label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: 600; }
+  .filter-group input,
+  .filter-group select {
+    padding: 6px 10px;
+    border: 1px solid #c8d4e8;
+    border-radius: 4px;
+    font-size: 12px;
+    outline: none;
+    background: white;
+    color: #333;
+    transition: border-color 0.2s;
+  }
+  .filter-group input:focus,
+  .filter-group select:focus { border-color: #1a4a8e; }
+  .filter-group input { width: 120px; }
+  .filter-group select { width: 160px; }
+  .filter-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .btn-filter {
+    padding: 7px 14px;
+    background: #f0f4fb;
+    border: 1px solid #c8d4e8;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    color: #1a4a8e;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+  .btn-filter:hover { background: #dce8fb; }
+  .btn-delete {
+    padding: 7px 10px;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #999;
+    font-size: 14px;
+  }
+  .btn-delete:hover { color: #cc2222; border-color: #cc2222; }
+
+  /* TABLE */
+  .table-wrapper {
+    background: #fff;
+    border: 1px solid #dce3f0;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(10,42,94,0.07);
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr {
+    background: linear-gradient(90deg, #0a2a5e 0%, #1a4a8e 100%);
+  }
+  th {
+    text-align: left;
+    padding: 11px 13px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    border-right: 1px solid rgba(255,255,255,0.12);
+    white-space: nowrap;
+    user-select: none;
+  }
+  th:last-child { border-right: none; }
+
+  /* DÜZENLİ BAĞIŞLARIM STATS */
+  .duzenli-stats-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+  .duzenli-stat {
+    background: linear-gradient(135deg, #0a2a5e, #1a4a8e);
+    color: white;
+    border-radius: 6px;
+    padding: 16px 28px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.8;
+    box-shadow: 0 3px 10px rgba(10,42,94,0.15);
+  }
+  .duzenli-stat .amount { font-size: 22px; font-weight: 800; }
+
+  /* İPTAL BUTONU */
+  .btn-iptal {
+    padding: 5px 12px;
+    background: #fff;
+    border: 1px solid #cc2222;
+    color: #cc2222;
+    border-radius: 4px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    white-space: nowrap;
+  }
+  .btn-iptal:hover { background: #cc2222; color: #fff; }
+  .btn-iptal:disabled {
+    border-color: #ccc;
+    color: #aaa;
+    cursor: not-allowed;
+    background: #f9f9f9;
+  }
+
+  /* DURUM BADGE */
+  .badge-aktif { background: #e6f9ee; color: #1a7a3c; }
+  .badge-iptal { background: #fdecea; color: #b71c1c; }
+
+  /* SORTABLE COLUMNS */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(10,20,50,0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 8px;
+    padding: 28px 32px;
+    max-width: 380px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(10,42,94,0.18);
+    text-align: center;
+  }
+  .modal h3 { color: #0a2a5e; font-size: 15px; margin-bottom: 10px; }
+  .modal p { color: #555; font-size: 13px; margin-bottom: 22px; line-height: 1.6; }
+  .modal-kampanya { font-weight: 700; color: #1a4a8e; }
+  .modal-actions { display: flex; gap: 10px; justify-content: center; }
+  .btn-modal-vazgec {
+    padding: 8px 22px;
+    background: #f0f4fb;
+    border: 1px solid #c8d4e8;
+    border-radius: 4px;
+    color: #1a4a8e;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .btn-modal-iptal {
+    padding: 8px 22px;
+    background: #cc2222;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .btn-modal-iptal:hover { background: #b01c1c; }
+  th.sortable { cursor: pointer; }
+  th.sortable:hover { background: rgba(255,255,255,0.1); }
+  .sort-icon { margin-left: 5px; font-size: 10px; opacity: 0.6; }
+  th.sort-asc .sort-icon::after { content: ' ▲'; opacity: 1; }
+  th.sort-desc .sort-icon::after { content: ' ▼'; opacity: 1; }
+  th:not(.sort-asc):not(.sort-desc) .sort-icon::after { content: ' ⇅'; }
+
+  td {
+    padding: 10px 13px;
+    font-size: 12.5px;
+    color: #444;
+    border-bottom: 1px solid #eef1f7;
+    border-right: 1px solid #f4f6fb;
+  }
+  td:last-child { border-right: none; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #f5f8fd; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-web { background: #e0f0ff; color: #1a6abf; }
+  .badge-mobil { background: #e8f5e9; color: #2e7d32; }
+  .badge-eft { background: #fff3e0; color: #e65100; }
+  .badge-nakdi { background: #e8eaf6; color: #3949ab; }
+  .badge-duzenli { background: #f3e5f5; color: #7b1fa2; }
+  .badge-tekseferlik { background: #fce4ec; color: #c62828; }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="navbar-logo">
+    <div class="logo-box">AFAD</div>
+    <div class="logo-text">AFET VE ACİL DURUM<br>YÖNETİMİ BAŞKANLIĞI</div>
+  </div>
+  <div class="navbar-links">
+    <a href="#">ANA SAYFA</a>
+    <a href="#">KURUMSAL</a>
+    <a href="#">BAĞIŞ KANALLARI</a>
+    <a href="#">SSS</a>
+    <a href="#">İLETİŞİM</a>
+  </div>
+  <div class="navbar-right">
+    <span>TR ▾</span>
+    <span>Para Birimi-₺ ▾</span>
+    <span>🛒 SEPET</span>
+    <span>👤 HESABIM ▾</span>
+    <button class="btn-hizli">HIZLI BAĞIŞ</button>
+  </div>
+</nav>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h3>Hesabım</h3>
+    <a class="sidebar-item" href="#"><span class="icon">💳</span> Bağış Yap</a>
+    <a class="sidebar-item" href="#"><span class="icon">👤</span> Kişisel Bilgilerim</a>
+    <a class="sidebar-item" href="#"><span class="icon">📞</span> İletişim Bilgilerim</a>
+    <button class="sidebar-accordion-btn" onclick="toggleAccordion(this)">
+      <span class="icon">⚙️</span> Hesap Yönetimi
+      <span class="chevron">▼</span>
+    </button>
+    <div class="sidebar-accordion-body">
+      <a class="sidebar-item" href="#"><span class="icon">🔒</span> Şifremi Değiştir</a>
+      <a class="sidebar-item" href="#"><span class="icon">❄️</span> Hesabımı Dondur</a>
+      <a class="sidebar-item sidebar-item-danger" href="#"><span class="icon">🗑️</span> Hesabımı Sil</a>
+    </div>
+    <div class="sidebar-divider"></div>
+    <a class="sidebar-item active" id="menu-bagislarim" href="#" onclick="showPage('bagislarim')"><span class="icon">❤️</span> Bağışlarım</a>
+    <a class="sidebar-item new-item" id="menu-duzenli" href="#" onclick="showPage('duzenli')"><span class="icon">🔄</span> Düzenli Bağışlarım</a>
+    <div class="sidebar-divider"></div>
+    <a class="sidebar-item" href="#"><span class="icon">🚪</span> Oturumu Kapat</a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- ===== BAĞIŞLARIM SAYFASI ===== -->
+    <div id="page-bagislarim">
+      <div class="page-title">Bağışlarım</div>
+
+      <!-- STATS -->
+      <div class="stats-row">
+        <div class="stat-card">Toplam Bağış Sayınız<br><span class="amount" id="statSayi">—</span></div>
+        <div class="stat-card">Toplam TL Bağışınız<br><span class="amount" id="statTL">—</span></div>
+        <div class="stat-card">Toplam Euro Bağışınız<br><span class="amount" id="statEUR">0€</span></div>
+        <div class="stat-card">Toplam USD Bağışınız<br><span class="amount" id="statUSD">0$</span></div>
+        <div class="stat-card">Toplam GBP Bağışınız<br><span class="amount" id="statGBP">0£</span></div>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="filter-section">
+        <input class="search-bar" type="text" placeholder="Ara..." id="searchInput" oninput="filterTable()">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label>Başlangıç Tarihi</label>
+            <input type="text" placeholder="gg.aa.yyyy">
+          </div>
+          <div class="filter-group">
+            <label>Bitiş Tarihi</label>
+            <input type="text" placeholder="gg.aa.yyyy">
+          </div>
+          <div class="filter-group">
+            <label>Kampanya Adı</label>
+            <select><option>Tümü</option><option>Afet Kampanyası</option><option>Deprem Yardımı</option></select>
+          </div>
+          <div class="filter-group">
+            <label>Para Birimi</label>
+            <select><option>TRY</option><option>EUR</option><option>USD</option><option>GBP</option></select>
+          </div>
+          <div class="filter-group">
+            <label>Tutar</label>
+            <input type="text" id="tutarFilter" oninput="filterTable()">
+          </div>
+          <div class="filter-group">
+            <label>Bağış Türü</label>
+            <select id="turFilter" onchange="filterTable()">
+              <option value="">Tümü</option>
+              <option value="Düzenli Nakdi Bağış">Düzenli Nakdi Bağış</option>
+              <option value="Tek Seferlik Bağış">Tek Seferlik Bağış</option>
+            </select>
+          </div>
+          <div class="filter-right">
+            <button class="btn-filter">Gelişmiş Filtreleme</button>
+            <button class="btn-delete" onclick="clearFilters()" title="Filtreleri Temizle">🗑️</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-wrapper">
+        <table id="mainTable">
+          <thead>
+            <tr>
+              <th class="sortable" onclick="sortTable(0)">Bağış Tarihi<span class="sort-icon"></span></th>
+              <th class="sortable" onclick="sortTable(1)">Bağış Kodu<span class="sort-icon"></span></th>
+              <th class="sortable" onclick="sortTable(2)">Kampanya Adı<span class="sort-icon"></span></th>
+              <th class="sortable" onclick="sortTable(3)">Birim Tutar<span class="sort-icon"></span></th>
+              <th class="sortable" onclick="sortTable(4)">Bağış Kanalı<span class="sort-icon"></span></th>
+              <th class="sortable" onclick="sortTable(5)">Bağış Kategorisi<span class="sort-icon"></span></th>
+              <th class="sortable" onclick="sortTable(6)">Bağış Türü<span class="sort-icon"></span></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ===== DÜZENLİ BAĞIŞLARIM SAYFASI ===== -->
+    <div id="page-duzenli" style="display:none;">
+      <div class="page-title">Düzenli Bağışlarım</div>
+
+      <div class="duzenli-stats-row">
+        <div class="duzenli-stat">Aktif Talimat Sayısı<br><span class="amount" id="dStatSayi">—</span></div>
+        <div class="duzenli-stat">Toplam Aylık Tutar<br><span class="amount" id="dStatAylik">—</span></div>
+        <div class="duzenli-stat">Toplam Ödenen<br><span class="amount" id="dStatOdenen">—</span></div>
+      </div>
+
+      <div class="table-wrapper">
+        <table id="duzenliTable">
+          <thead>
+            <tr>
+              <th class="sortable" onclick="sortDuzenli(0)">Kampanya Adı<span class="sort-icon"></span></th>
+              <th class="sortable" onclick="sortDuzenli(1)">Talimat Başlangıç<span class="sort-icon"></span></th>
+              <th class="sortable" onclick="sortDuzenli(2)">Talimat Bitiş<span class="sort-icon"></span></th>
+              <th class="sortable" onclick="sortDuzenli(3)">Aylık Tutar<span class="sort-icon"></span></th>
+              <th class="sortable" onclick="sortDuzenli(4)">Geçen Ay / Toplam Ödenen<span class="sort-icon"></span></th>
+              <th>Kalan Süre</th>
+              <th>Durum</th>
+              <th>İşlem</th>
+            </tr>
+          </thead>
+          <tbody id="duzenliBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- İPTAL ONAY MODALI -->
+<div class="modal-overlay" id="iptalModal">
+  <div class="modal">
+    <h3>⚠️ Talimat İptali</h3>
+    <p><span class="modal-kampanya" id="modalKampanya"></span> kampanyasına ait düzenli bağış talimatını iptal etmek istediğinize emin misiniz?</p>
+    <div class="modal-actions">
+      <button class="btn-modal-vazgec" onclick="closeModal()">Vazgeç</button>
+      <button class="btn-modal-iptal" onclick="confirmIptal()">Evet, İptal Et</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const allData = [
+  { tarih: "01.01.2026", kod: "WEB-TS-AFT-U00142-20260101-0001", kampanya: "Afet Yardım",    tutar: 10,  tutarStr: "10 TL",  kanal: "Web",        kategori: "Nakdi Bağış", tur: "Tek Seferlik Bağış" },
+  { tarih: "15.01.2026", kod: "WEB-TS-DEP-U00142-20260115-0001", kampanya: "Deprem Yardımı", tutar: 20,  tutarStr: "20 TL",  kanal: "Web",        kategori: "Nakdi Bağış", tur: "Tek Seferlik Bağış" },
+  { tarih: "16.02.2026", kod: "MOB-TS-AFT-U00142-20260216-0001", kampanya: "Afet Yardım",    tutar: 50,  tutarStr: "50 TL",  kanal: "Mobil",      kategori: "Nakdi Bağış", tur: "Tek Seferlik Bağış" },
+  { tarih: "20.02.2026", kod: "EFT-TS-AFT-U00142-20260220-0001", kampanya: "Afet Yardım",    tutar: 100, tutarStr: "100 TL", kanal: "EFT/HAVALE", kategori: "Nakdi Bağış", tur: "Tek Seferlik Bağış" },
+];
+
+let sortCol = -1;
+let sortDir = 1;
+
+function kanalBadge(k) {
+  if (k === "Web")        return `<span class="badge badge-web">🌐 ${k}</span>`;
+  if (k === "Mobil")      return `<span class="badge badge-mobil">📱 ${k}</span>`;
+  if (k === "EFT/HAVALE") return `<span class="badge badge-eft">🏦 ${k}</span>`;
+  if (k === "Otomatik")   return `<span class="badge badge-duzenli">🔄 Web-Otomatik</span>`;
+  return k;
+}
+function kategoriBadge(k) {
+  if (k === "Nakdi Bağış")         return `<span class="badge badge-nakdi">${k}</span>`;
+  if (k === "Düzenli Nakdi Bağış") return `<span class="badge badge-duzenli">${k}</span>`;
+  return k;
+}
+function turBadge(t) {
+  if (t === "Düzenli Nakdi Bağış") return `<span class="badge badge-duzenli">${t}</span>`;
+  if (t === "Tek Seferlik Bağış")  return `<span class="badge badge-tekseferlik">${t}</span>`;
+  return t;
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#999; padding:20px;">Sonuç bulunamadı.</td></tr>';
+    return;
+  }
+
+  data.forEach(row => {
+    const tr = `<tr>
+      <td>${row.tarih}</td>
+      <td><strong>${row.kod}</strong></td>
+      <td>${row.kampanya}</td>
+      <td><strong>${row.tutarStr}</strong></td>
+      <td>${kanalBadge(row.kanal)}</td>
+      <td>${kategoriBadge(row.kategori)}</td>
+      <td>${turBadge(row.tur)}</td>
+    </tr>`;
+    tbody.insertAdjacentHTML('beforeend', tr);
+  });
+}
+
+function filterTable() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const tur    = document.getElementById('turFilter').value.toLowerCase();
+  const tutar  = document.getElementById('tutarFilter').value.toLowerCase();
+  const kaynak = window._tamData || allData;
+
+  let filtered = kaynak.filter(row => {
+    const matchSearch = !search ||
+      row.tarih.toLowerCase().includes(search) ||
+      row.kod.toLowerCase().includes(search) ||
+      row.kampanya.toLowerCase().includes(search) ||
+      row.kanal.toLowerCase().includes(search) ||
+      row.kategori.toLowerCase().includes(search) ||
+      row.tur.toLowerCase().includes(search);
+    const matchTur   = !tur   || row.tur.toLowerCase().includes(tur) || row.kategori.toLowerCase().includes(tur);
+    const matchTutar = !tutar || row.tutarStr.toLowerCase().includes(tutar);
+    return matchSearch && matchTur && matchTutar;
+  });
+
+  if (sortCol >= 0) {
+    filtered = sortData(filtered, sortCol, sortDir);
+  }
+  renderTable(filtered);
+}
+
+function sortData(data, col, dir) {
+  return [...data].sort((a, b) => {
+    const keys = ['tarih','kod','kampanya','tutar','kanal','kategori','tur'];
+    let va = a[keys[col]];
+    let vb = b[keys[col]];
+    // Tarih sıralama
+    if (col === 0) {
+      va = va.split('.').reverse().join('');
+      vb = vb.split('.').reverse().join('');
+    }
+    if (typeof va === 'number') return (va - vb) * dir;
+    return String(va).localeCompare(String(vb), 'tr') * dir;
+  });
+}
+
+function sortTable(col) {
+  const ths = document.querySelectorAll('th.sortable');
+  if (sortCol === col) {
+    sortDir = -sortDir;
+  } else {
+    sortCol = col;
+    sortDir = 1;
+  }
+  ths.forEach((th, i) => {
+    th.classList.remove('sort-asc','sort-desc');
+    if (i === col) th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
+  });
+  filterTable();
+}
+
+function clearFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('turFilter').value = '';
+  document.getElementById('tutarFilter').value = '';
+  filterTable();
+}
+
+// İlk yükleme
+renderTable(allData);
+
+// Kampanya → kısa kod eşlemesi
+const kampanyaKod = {
+  "Afet Yardım":      "AFT",
+  "Deprem Yardımı":   "DEP",
+  "Sudan Yardımı":    "SDN",
+  "Filistin Yardımı": "FLS",
+  "Somali Yardımı":   "SML",
+};
+
+// Düzenli bağışlardan tamamlanan ödemeleri hesapla ve birleştir
+function buildTamData() {
+  const duzenliOdemeler = [];
+  duzenliData.forEach(d => {
+    const aylar = gecenAySayisi(d.baslangic);
+    for (let i = 0; i < aylar; i++) {
+      const bas = parseDate(d.baslangic);
+      const odemeAy = new Date(bas.getFullYear(), bas.getMonth() + i, bas.getDate());
+      const gun = String(odemeAy.getDate()).padStart(2,'0');
+      const ay  = String(odemeAy.getMonth()+1).padStart(2,'0');
+      const yil = odemeAy.getFullYear();
+      const tarihStr = `${gun}.${ay}.${yil}`;
+      const tarihKod = `${yil}${ay}${gun}`;
+      const kamp = kampanyaKod[d.kampanya] || "GNL";
+      const seq  = String(i+1).padStart(4,'0');
+      duzenliOdemeler.push({
+        tarih: tarihStr,
+        kod: `AUT-DN-${kamp}-U00142-${tarihKod}-${seq}`,
+        kampanya: d.kampanya,
+        tutar: d.tutar,
+        tutarStr: `${d.tutar} TL`,
+        kanal: "Otomatik",
+        kategori: "Düzenli Nakdi Bağış",
+        tur: "Düzenli Nakdi Bağış"
+      });
+    }
+  });
+  return [...allData, ...duzenliOdemeler].sort((a,b) => {
+    const da = a.tarih.split('.').reverse().join('');
+    const db = b.tarih.split('.').reverse().join('');
+    return db.localeCompare(da);
+  });
+}
+
+function updateStats(data) {
+  const toplamTL = data.reduce((s,r) => s + r.tutar, 0);
+  document.getElementById('statSayi').textContent = data.length;
+  document.getElementById('statTL').textContent   = toplamTL + '₺';
+}
+
+function initBagislarim() {
+  const tamData = buildTamData();
+  updateStats(tamData);
+  renderTable(tamData);
+  // allData'yı da güncelle ki filtreler çalışsın
+  window._tamData = tamData;
+}
+
+// ===== DÜZENLİ BAĞIŞLARIM =====
+let duzenliData = [
+  { id: 1, kampanya: "Afet Yardım",      baslangic: "05.06.2025", bitis: "05.06.2026", tutar: 30,  tutarStr: "30 TL/ay",  durum: "Aktif" },
+  { id: 2, kampanya: "Deprem Yardımı",   baslangic: "20.08.2025", bitis: "20.08.2026", tutar: 30,  tutarStr: "30 TL/ay",  durum: "Aktif" },
+  { id: 3, kampanya: "Sudan Yardımı",    baslangic: "01.09.2025", bitis: "01.09.2026", tutar: 50,  tutarStr: "50 TL/ay",  durum: "Aktif" },
+  { id: 4, kampanya: "Filistin Yardımı", baslangic: "15.07.2025", bitis: "15.07.2026", tutar: 100, tutarStr: "100 TL/ay", durum: "Aktif" },
+  { id: 5, kampanya: "Somali Yardımı",   baslangic: "10.06.2025", bitis: "10.06.2026", tutar: 50,  tutarStr: "50 TL/ay",  durum: "Aktif" },
+];
+
+let duzenliSortCol = -1;
+let duzenliSortDir = 1;
+let iptalTargetId = null;
+
+function durumBadge(d) {
+  if (d === "Aktif")  return `<span class="badge badge-aktif">● Aktif</span>`;
+  if (d === "İptal")  return `<span class="badge badge-iptal">✕ İptal</span>`;
+  return d;
+}
+
+function parseDate(str) {
+  const [d, m, y] = str.split('.').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+function gecenAySayisi(baslangicStr) {
+  const baslangic = parseDate(baslangicStr);
+  const bugun = new Date(2026, 2, 5); // Bugün: 05.03.2026
+  if (bugun < baslangic) return 0;
+  const yilFark = bugun.getFullYear() - baslangic.getFullYear();
+  const ayFark  = bugun.getMonth()    - baslangic.getMonth();
+  const toplamAy = yilFark * 12 + ayFark;
+  // Başlangıç günü henüz geçmediyse bu ayı sayma
+  const gecmis = bugun.getDate() >= baslangic.getDate() ? toplamAy + 1 : toplamAy;
+  return Math.max(0, gecmis);
+}
+
+function kalanSure(bitisStr) {
+  const bitis = parseDate(bitisStr);
+  const bugun = new Date(2026, 2, 5);
+  if (bitis <= bugun) return '<span style="color:#b71c1c;font-size:11px;">Süresi Doldu</span>';
+  const yilFark = bitis.getFullYear() - bugun.getFullYear();
+  const ayFark  = bitis.getMonth()    - bugun.getMonth();
+  const gunFark = bitis.getDate()     - bugun.getDate();
+  let toplamAy = yilFark * 12 + ayFark;
+  if (gunFark < 0) toplamAy -= 1;
+  const kalanGun = Math.round((bitis - bugun) / (1000 * 60 * 60 * 24));
+  const kalanGunKalan = kalanGun - toplamAy * 30;
+
+  if (toplamAy <= 0) {
+    return `<span style="color:#e65100;font-size:13px;font-weight:700;">${kalanGun}</span> <span style="color:#e65100;font-size:10px;">gün</span>`;
+  }
+  if (toplamAy < 12) {
+    return `<span style="color:#1a4a8e;font-size:14px;font-weight:800;">${toplamAy} ay</span> <span style="color:#888;font-size:10px;">${kalanGunKalan > 0 ? kalanGunKalan + ' gün' : ''}</span>`;
+  }
+  const yil = Math.floor(toplamAy / 12);
+  const ay  = toplamAy % 12;
+  return `<span style="color:#1a7a3c;font-size:14px;font-weight:800;">${yil} yıl${ay > 0 ? ' ' + ay + ' ay' : ''}</span> <span style="color:#888;font-size:10px;">${kalanGunKalan > 0 ? kalanGunKalan + ' gün' : ''}</span>`;
+}
+
+function renderDuzenli(data) {
+  // Stats güncelle
+  const aktif = data.filter(r => r.durum === 'Aktif');
+  const aylikToplam  = aktif.reduce((s, r) => s + r.tutar, 0);
+  const odenenToplam = data.reduce((s, r) => s + gecenAySayisi(r.baslangic) * r.tutar, 0);
+  document.getElementById('dStatSayi').textContent   = aktif.length;
+  document.getElementById('dStatAylik').textContent  = aylikToplam + '₺';
+  document.getElementById('dStatOdenen').textContent = odenenToplam + '₺';
+
+  const tbody = document.getElementById('duzenliBody');
+  tbody.innerHTML = '';
+  if (data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:20px;">Aktif düzenli bağış talimatı bulunmamaktadır.</td></tr>';
+    return;
+  }
+  data.forEach(row => {
+    const iptalDisabled = row.durum === 'İptal' ? 'disabled' : '';
+    const aylar = gecenAySayisi(row.baslangic);
+    const toplamOdenen = aylar * row.tutar;
+    const gecenAyStr = `<span style="font-weight:700">${aylar} ay</span> <span style="color:#888;font-size:11px;">/ ${toplamOdenen > 0 ? toplamOdenen + ' TL' : '—'}</span>`;
+    const tr = `<tr>
+      <td><strong>${row.kampanya}</strong></td>
+      <td>${row.baslangic}</td>
+      <td>${row.bitis}</td>
+      <td><strong>${row.tutarStr}</strong></td>
+      <td>${gecenAyStr}</td>
+      <td>${kalanSure(row.bitis)}</td>
+      <td>${durumBadge(row.durum)}</td>
+      <td><button class="btn-iptal" onclick="openModal(${row.id})" ${iptalDisabled}>Talimatı İptal Et</button></td>
+    </tr>`;
+    tbody.insertAdjacentHTML('beforeend', tr);
+  });
+}
+
+function sortDuzenli(col) {
+  const ths = document.querySelectorAll('#duzenliTable th.sortable');
+  if (duzenliSortCol === col) {
+    duzenliSortDir = -duzenliSortDir;
+  } else {
+    duzenliSortCol = col;
+    duzenliSortDir = 1;
+  }
+  ths.forEach((th, i) => {
+    th.classList.remove('sort-asc','sort-desc');
+    if (i === col) th.classList.add(duzenliSortDir === 1 ? 'sort-asc' : 'sort-desc');
+  });
+  const keys = ['kampanya','baslangic','bitis','tutar','tutar']; // index 4: toplam ödenen tutar bazlı sıralama
+  const sorted = [...duzenliData].sort((a, b) => {
+    let va = a[keys[col]], vb = b[keys[col]];
+    if (col === 1 || col === 2) {
+      va = va.split('.').reverse().join('');
+      vb = vb.split('.').reverse().join('');
+    }
+    if (typeof va === 'number') return (va - vb) * duzenliSortDir;
+    return String(va).localeCompare(String(vb), 'tr') * duzenliSortDir;
+  });
+  renderDuzenli(sorted);
+}
+
+function openModal(id) {
+  iptalTargetId = id;
+  const row = duzenliData.find(r => r.id === id);
+  document.getElementById('modalKampanya').textContent = row.kampanya;
+  document.getElementById('iptalModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('iptalModal').classList.remove('open');
+  iptalTargetId = null;
+}
+function confirmIptal() {
+  if (iptalTargetId === null) return;
+  duzenliData = duzenliData.map(r => r.id === iptalTargetId ? {...r, durum: 'İptal'} : r);
+  renderDuzenli(duzenliData);
+  closeModal();
+}
+
+function toggleAccordion(btn) {
+  const body = btn.nextElementSibling;
+  btn.classList.toggle('open');
+  body.classList.toggle('open');
+}
+
+// Sayfa geçişi
+function showPage(page) {
+  document.getElementById('page-bagislarim').style.display = page === 'bagislarim' ? '' : 'none';
+  document.getElementById('page-duzenli').style.display   = page === 'duzenli'    ? '' : 'none';
+
+  document.getElementById('menu-bagislarim').classList.toggle('active',  page === 'bagislarim');
+  document.getElementById('menu-bagislarim').classList.toggle('new-item', false);
+  document.getElementById('menu-duzenli').classList.toggle('active',  page === 'duzenli');
+  document.getElementById('menu-duzenli').classList.toggle('new-item', page !== 'duzenli');
+
+  if (page === 'duzenli')    renderDuzenli(duzenliData);
+  if (page === 'bagislarim') initBagislarim();
+  return false;
+}
+
+// İlk yükleme
+initBagislarim();
+
+// Modal dışına tıklayınca kapat
+document.getElementById('iptalModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
+</body>
+</html>
