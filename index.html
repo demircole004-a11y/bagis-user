@@ -3,921 +3,402 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>T.C. İçişleri Bakanlığı - AFAD Bağışlarım</title>
-<link rel="shortcut icon" href="https://www.afad.gov.tr/kurumlar/afad.gov.tr/Tasarim/afad_fav.png" type="image/x-icon">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<title>AFAD Power BI - Demografik & Coğrafi Bağışçı Analizi</title>
 <style>
-  :root {
-    --afad-mavi: #0054a6;
-    --afad-turuncu: #f47920;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', 'Segoe UI', sans-serif; background: #eef1f7; font-size: 13px; color: #333; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f3f2f1;color:#252423;}
+.wrap{padding:20px;display:flex;flex-direction:column;gap:16px;}
 
-  /* NAVBAR */
-  .navbar {
-    background: linear-gradient(90deg, #003a7a 0%, var(--afad-mavi) 60%, #0066cc 100%);
-    padding: 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 66px;
-    box-shadow: 0 2px 8px rgba(0,60,130,0.22);
-  }
-  .navbar-logo { display: flex; align-items: center; gap: 12px; }
-  .navbar-logo img { height: 44px; }
-  .logo-divider { width: 1px; height: 34px; background: rgba(255,255,255,0.3); }
-  .logo-text { font-size: 9.5px; color: #c8dff5; line-height: 1.45; max-width: 150px; font-weight: 500; letter-spacing: 0.2px; }
-  .navbar-links { display: flex; gap: 24px; font-size: 12px; font-weight: 600; }
-  .navbar-links a { text-decoration: none; color: #c8dff5; transition: color 0.15s; }
-  .navbar-links a:hover { color: #fff; }
-  .navbar-right { display: flex; align-items: center; gap: 14px; font-size: 12px; color: #c8dff5; }
-  .navbar-right i { font-size: 13px; }
-  .btn-hizli {
-    background: var(--afad-turuncu);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 12px;
-    letter-spacing: 0.5px;
-    transition: background 0.15s;
-  }
-  .btn-hizli:hover { background: #d96510; }
+/* HEADER & FILTERS (Power BI Slicers) */
+.filter-bar{display:flex; align-items:center; gap:12px; background:#fff; padding:12px 20px; border-radius:4px; border:1px solid #e1dfdd; box-shadow: 0 2px 4px rgba(0,0,0,0.02); flex-wrap:wrap;}
+.f-group{display:flex; flex-direction:column; gap:4px;}
+.f-lbl{font-size:10px; font-weight:700; color:#605e5c; text-transform:uppercase;}
+.f-sel{font-size:12px; padding:6px 12px; border:1px solid #c8d4e8; border-radius:2px; outline:none; color:#252423; cursor:pointer; min-width:140px;}
+.f-btn{background:#edebe9; color:#252423; border:1px solid #8a8886; padding:8px 16px; border-radius:2px; font-size:12px; font-weight:600; cursor:pointer; align-self:flex-end; margin-left:auto; transition:background 0.2s;}
+.f-btn:hover{background:#e1dfdd;}
 
-  /* LAYOUT */
-  .layout { display: flex; min-height: calc(100vh - 66px); }
+.panel-title{font-size:14px;font-weight:700;color:#0054a6;letter-spacing:.3px;border-left:4px solid #f47920;padding-left:12px; margin-bottom:4px;}
 
-  /* SIDEBAR */
-  .sidebar {
-    width: 190px;
-    background: #fff;
-    border-right: 1px solid #dce3f0;
-    padding: 20px 0;
-    flex-shrink: 0;
-    box-shadow: 2px 0 6px rgba(10,42,94,0.04);
-  }
-  .sidebar h3 {
-    font-size: 13px;
-    font-weight: 700;
-    padding: 0 16px 12px;
-    color: #0054a6;
-    border-bottom: 2px solid #eef1f7;
-    margin-bottom: 6px;
-    letter-spacing: 0.3px;
-  }
-  .sidebar-item {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 9px 16px;
-    font-size: 12.5px;
-    color: #444;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.15s, color 0.15s;
-    border-left: 3px solid transparent;
-  }
-  .sidebar-item:hover { background: #f0f4fb; color: #0054a6; border-left-color: #80aed8; }
-  .sidebar-item.active { background: #e8f0fa; color: #003a7a; font-weight: 700; border-left: 3px solid #0054a6; }
-  .sidebar-item.new-item { background: #e8f4ff; color: #0054a6; border-left: 3px solid #0054a6; font-weight: 600; }
-  .sidebar-item.new-item:hover { background: #d6eaff; }
-  .sidebar-item .icon { font-size: 13px; width: 17px; text-align: center; }
+/* KPI ROW (5 KOLON) */
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+.kpi{background:#fff;border-radius:4px;padding:16px;border:1px solid #e1dfdd; box-shadow: 0 2px 4px rgba(0,0,0,0.06); border-left:4px solid transparent;}
+.kpi-blue{border-left-color:#0054a6;}
+.kpi-orange{border-left-color:#f47920;}
+.kpi-gray{border-left-color:#8a8886;}
+.kpi-green{border-left-color:#107c41;}
+.kpi-purple{border-left-color:#7c3aed;}
+.kpi-lbl{font-size:11px;color:#605e5c;font-weight:600;text-transform:uppercase;margin-bottom:8px;}
+.kpi-val{font-size:24px;font-weight:300;color:#252423;line-height:1.1; letter-spacing:-0.5px;}
+.kpi-sub{font-size:11px;margin-top:8px;color:#605e5c; display:flex; align-items:center; gap:4px;}
+.up{color:#107c41; font-weight:600;} .dn{color:#a4262c; font-weight:600;}
 
-  .sidebar-accordion-btn {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 9px 16px;
-    font-size: 12.5px;
-    color: #444;
-    cursor: pointer;
-    border-left: 3px solid transparent;
-    transition: background 0.15s, color 0.15s;
-    user-select: none;
-    width: 100%;
-    background: none;
-    border-top: none;
-    border-right: none;
-    border-bottom: none;
-    text-align: left;
-    font-family: inherit;
-  }
-  .sidebar-accordion-btn:hover { background: #f0f4fb; color: var(--afad-mavi); border-left-color: #80aed8; }
-  .sidebar-accordion-btn.open { background: #e8f0fa; color: #003a7a; font-weight: 700; border-left: 3px solid var(--afad-mavi); }
-  .sidebar-accordion-btn .icon { font-size: 13px; width: 17px; text-align: center; }
-  .sidebar-accordion-btn .chevron {
-    margin-left: auto;
-    font-size: 10px;
-    transition: transform 0.2s;
-    color: #999;
-  }
-  .sidebar-accordion-btn.open .chevron { transform: rotate(180deg); }
-  .sidebar-accordion-body {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.25s ease;
-    background: #f8fafd;
-  }
-  .sidebar-accordion-body.open { max-height: 200px; }
-  .sidebar-accordion-body .sidebar-item {
-    padding-left: 36px;
-    font-size: 12px;
-    border-left: 3px solid transparent;
-  }
-  .sidebar-divider {
-    height: 1px;
-    background: #eef1f7;
-    margin: 6px 16px;
-  }
-  .sidebar-item-danger { color: #cc2222; }
-  .sidebar-item-danger:hover { background: #fff0f0; color: #b01c1c; border-left-color: #cc2222; }
+/* GRIDS */
+.two-col{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.chart-box{background:#fff;border-radius:4px;padding:16px 20px;border:1px solid #e1dfdd; box-shadow: 0 2px 4px rgba(0,0,0,0.06); display:flex; flex-direction:column;}
+.chart-title{font-size:14px;font-weight:600;color:#252423;margin-bottom:4px;}
+.chart-sub{font-size:11px;color:#605e5c;margin-bottom:16px; line-height:1.3;}
 
-  /* MAIN CONTENT */
-  .main { flex: 1; padding: 22px 24px; }
+/* HIERARCHY TREE (Power BI Matrix Style) */
+.tree-wrap{display:flex; flex-direction:column; gap:6px; flex:1; justify-content:center;}
+.tr-node{display:flex; align-items:center; justify-content:space-between; padding:8px 12px; background:#fff; border:1px solid #e1dfdd; border-radius:2px;}
+.tr-indent-1{margin-left:24px; border-left:3px solid #0054a6;}
+.tr-indent-2{margin-left:48px; border-left:3px solid #107c41;}
+.tr-indent-1-alt{margin-left:24px; border-left:3px solid #8a8886;}
+.tr-lbl{font-size:12px; font-weight:600; color:#252423; display:flex; align-items:center; gap:8px; width:160px; flex-shrink:0;}
+.tr-pct{font-size:10px; color:#605e5c; background:#f3f2f1; padding:2px 5px; border-radius:2px; font-weight:700;}
+.tr-bar-wrap{flex:1; height:18px; background:#f3f2f1; margin:0 16px; border-radius:2px; overflow:hidden;}
+.tr-bar{height:100%; border-radius:2px;}
+.tr-val{font-size:13px; font-weight:700; color:#252423; width:70px; text-align:right; flex-shrink:0;}
 
-  /* PAGE TITLE */
-  .page-title {
-    background: linear-gradient(90deg, #003a7a 0%, #0054a6 100%);
-    color: white;
-    padding: 11px 18px;
-    font-size: 14px;
-    font-weight: 700;
-    border-radius: 6px 6px 0 0;
-    letter-spacing: 0.3px;
-  }
+/* PIE & DONUT STYLES */
+.pie-container{display:flex; align-items:center; gap:24px; flex:1;}
+.pie-canvas-wrap{position:relative; width:180px; height:180px; flex-shrink:0;}
+.pie-legend{display:flex; flex-direction:column; gap:8px; flex:1;}
+.pleg-item{display:flex; align-items:center; gap:8px; font-size:12px; color:#252423;}
+.pleg-dot{width:12px; height:12px; border-radius:2px; flex-shrink:0;}
+.pleg-pct{font-weight:700; margin-left:auto; font-size:13px;}
+.pleg-val{font-size:11px; color:#605e5c; width:60px; text-align:right;}
 
-  /* STATS CARDS */
-  .stats-row {
-    display: flex;
-    margin-bottom: 18px;
-    border-radius: 0 0 6px 6px;
-    overflow: hidden;
-    box-shadow: 0 3px 10px rgba(10,42,94,0.10);
-  }
-  .stat-card {
-    flex: 1;
-    padding: 14px 10px;
-    text-align: center;
-    color: white;
-    font-size: 11.5px;
-    font-weight: 600;
-    line-height: 1.7;
-    border-right: 1px solid rgba(255,255,255,0.15);
-  }
-  .stat-card:nth-child(1) { background: linear-gradient(135deg, #003a7a, #0054a6); }
-  .stat-card:nth-child(2) { background: linear-gradient(135deg, #0054a6, #0062c0); }
-  .stat-card:nth-child(3) { background: linear-gradient(135deg, #0062c0, #0072d6); }
-  .stat-card:nth-child(4) { background: linear-gradient(135deg, #0072d6, #0082e8); }
-  .stat-card:nth-child(5) { background: linear-gradient(135deg, #0082e8, #2090f0); border-right: none; }
-  .stat-card .amount { font-size: 20px; font-weight: 800; letter-spacing: 0.5px; }
+/* HORIZONTAL DATA BARS */
+.bar-list{display:flex; flex-direction:column; gap:8px; flex:1; overflow-y:auto;}
+.bar-row{display:flex; align-items:center; gap:12px;}
+.bar-lbl{width:110px; font-size:12px; font-weight:600; color:#252423; text-align:right; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.bar-track{flex:1; background:#f3f2f1; height:20px; border-radius:2px; position:relative;}
+.bar-fill{height:100%; border-radius:2px; display:flex; align-items:center; padding-left:8px;}
+.bar-val{width:60px; font-size:12px; font-weight:600; color:#252423; text-align:right; flex-shrink:0;}
 
-  /* FILTER SECTION */
-  .filter-section {
-    background: #fff;
-    border: 1px solid #dce3f0;
-    border-radius: 6px;
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    box-shadow: 0 1px 4px rgba(10,42,94,0.05);
-  }
-  .search-bar {
-    width: 100%;
-    padding: 8px 12px 8px 32px;
-    border: 1px solid #c8d4e8;
-    border-radius: 5px;
-    font-size: 13px;
-    margin-bottom: 12px;
-    outline: none;
-    background: #f8fafd url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E") 10px center no-repeat;
-    transition: border-color 0.2s;
-  }
-  .search-bar:focus { border-color: #1a4a8e; background-color: #fff; }
-  .filter-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
-  .filter-group label { display: block; font-size: 11px; color: #666; margin-bottom: 4px; font-weight: 600; }
-  .filter-group input,
-  .filter-group select {
-    padding: 6px 10px;
-    border: 1px solid #c8d4e8;
-    border-radius: 4px;
-    font-size: 12px;
-    outline: none;
-    background: white;
-    color: #333;
-    transition: border-color 0.2s;
-  }
-  .filter-group input:focus,
-  .filter-group select:focus { border-color: #1a4a8e; }
-  .filter-group input { width: 120px; }
-  .filter-group select { width: 160px; }
-  .filter-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-  .btn-filter {
-    padding: 7px 14px;
-    background: #f0f4fb;
-    border: 1px solid #c8d4e8;
-    border-radius: 4px;
-    font-size: 12px;
-    cursor: pointer;
-    color: #1a4a8e;
-    font-weight: 600;
-    transition: background 0.15s;
-  }
-  .btn-filter:hover { background: #dce8fb; }
-  .btn-delete {
-    padding: 7px 10px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    color: #999;
-    font-size: 14px;
-  }
-  .btn-delete:hover { color: #cc2222; border-color: #cc2222; }
-
-  /* TABLE */
-  .table-wrapper {
-    background: #fff;
-    border: 1px solid #dce3f0;
-    border-radius: 6px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(10,42,94,0.07);
-  }
-  table { width: 100%; border-collapse: collapse; }
-  thead tr {
-    background: linear-gradient(90deg, #003a7a 0%, var(--afad-mavi) 100%);
-  }
-  th {
-    text-align: left;
-    padding: 11px 13px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #fff;
-    border-right: 1px solid rgba(255,255,255,0.12);
-    white-space: nowrap;
-    user-select: none;
-  }
-  th:last-child { border-right: none; }
-
-  /* DÜZENLİ BAĞIŞLARIM STATS */
-  .duzenli-stats-row {
-    display: flex;
-    gap: 16px;
-    margin-bottom: 18px;
-  }
-  .duzenli-stat {
-    background: linear-gradient(135deg, #0a2a5e, #1a4a8e);
-    color: white;
-    border-radius: 6px;
-    padding: 16px 28px;
-    text-align: center;
-    font-size: 12px;
-    font-weight: 600;
-    line-height: 1.8;
-    box-shadow: 0 3px 10px rgba(10,42,94,0.15);
-  }
-  .duzenli-stat .amount { font-size: 22px; font-weight: 800; }
-
-  /* İPTAL BUTONU */
-  .btn-iptal {
-    padding: 5px 12px;
-    background: #fff;
-    border: 1px solid var(--afad-turuncu);
-    color: var(--afad-turuncu);
-    border-radius: 4px;
-    font-size: 11.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-    white-space: nowrap;
-  }
-  .btn-iptal:hover { background: var(--afad-turuncu); color: #fff; }
-  .btn-iptal:disabled {
-    border-color: #ccc;
-    color: #aaa;
-    cursor: not-allowed;
-    background: #f9f9f9;
-  }
-
-  /* DURUM BADGE */
-  .badge-aktif { background: #e6f9ee; color: #1a7a3c; }
-  .badge-iptal { background: #fdecea; color: #b71c1c; }
-
-  /* SORTABLE COLUMNS */
-  .modal-overlay {
-    display: none;
-    position: fixed; inset: 0;
-    background: rgba(10,20,50,0.45);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal {
-    background: #fff;
-    border-radius: 8px;
-    padding: 28px 32px;
-    max-width: 380px;
-    width: 90%;
-    box-shadow: 0 8px 32px rgba(10,42,94,0.18);
-    text-align: center;
-  }
-  .modal h3 { color: #0a2a5e; font-size: 15px; margin-bottom: 10px; }
-  .modal p { color: #555; font-size: 13px; margin-bottom: 22px; line-height: 1.6; }
-  .modal-kampanya { font-weight: 700; color: #1a4a8e; }
-  .modal-actions { display: flex; gap: 10px; justify-content: center; }
-  .btn-modal-vazgec {
-    padding: 8px 22px;
-    background: #f0f4fb;
-    border: 1px solid #c8d4e8;
-    border-radius: 4px;
-    color: #1a4a8e;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 13px;
-  }
-  .btn-modal-iptal {
-    padding: 8px 22px;
-    background: #cc2222;
-    border: none;
-    border-radius: 4px;
-    color: #fff;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 13px;
-  }
-  .btn-modal-iptal:hover { background: #b01c1c; }
-  th.sortable { cursor: pointer; }
-  th.sortable:hover { background: rgba(255,255,255,0.1); }
-  .sort-icon { margin-left: 5px; font-size: 10px; opacity: 0.6; }
-  th.sort-asc .sort-icon::after { content: ' ▲'; opacity: 1; }
-  th.sort-desc .sort-icon::after { content: ' ▼'; opacity: 1; }
-  th:not(.sort-asc):not(.sort-desc) .sort-icon::after { content: ' ⇅'; }
-
-  td {
-    padding: 10px 13px;
-    font-size: 12.5px;
-    color: #444;
-    border-bottom: 1px solid #eef1f7;
-    border-right: 1px solid #f4f6fb;
-  }
-  td:last-child { border-right: none; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #f5f8fd; }
-
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 600;
-  }
-  .badge-web { background: #e0f0ff; color: #1a6abf; }
-  .badge-mobil { background: #e8f5e9; color: #2e7d32; }
-  .badge-eft { background: #fff3e0; color: #e65100; }
-  .badge-nakdi { background: #e8eaf6; color: #3949ab; }
-  .badge-duzenli { background: #f3e5f5; color: #7b1fa2; }
-  .badge-tekseferlik { background: #fce4ec; color: #c62828; }
 </style>
 </head>
 <body>
 
-<!-- NAVBAR -->
-<nav class="navbar">
-  <div class="navbar-logo">
-    <img src="https://www.afad.gov.tr/kurumlar/afad.gov.tr/IcSite/afad-logo/afad.png" alt="AFAD Logosu">
-    <div class="logo-divider"></div>
-    <div class="logo-text">T.C. İÇİŞLERİ BAKANLIĞI<br>AFET VE ACİL DURUM<br>YÖNETİMİ BAŞKANLIĞI</div>
-  </div>
-  <div class="navbar-links">
-    <a href="#"><i class="fas fa-home fa-sm"></i> ANA SAYFA</a>
-    <a href="#">KURUMSAL</a>
-    <a href="#"><i class="fas fa-hand-holding-heart fa-sm"></i> BAĞIŞ KANALLARI</a>
-    <a href="#">SSS</a>
-    <a href="#"><i class="fas fa-envelope fa-sm"></i> İLETİŞİM</a>
-  </div>
-  <div class="navbar-right">
-    <span><i class="fas fa-globe"></i> TR ▾</span>
-    <span><i class="fas fa-coins"></i> ₺ ▾</span>
-    <span><i class="fas fa-shopping-cart"></i> SEPET</span>
-    <span><i class="fas fa-user-circle"></i> HESABIM ▾</span>
-    <button class="btn-hizli"><i class="fas fa-heart"></i> HIZLI BAĞIŞ</button>
-  </div>
-</nav>
+<div class="wrap">
 
-<!-- LAYOUT -->
-<div class="layout">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <h3>Hesabım</h3>
-    <a class="sidebar-item" href="#"><span class="icon"><i class="fas fa-credit-card"></i></span> Bağış Yap</a>
-    <a class="sidebar-item" href="#"><span class="icon"><i class="fas fa-user"></i></span> Kişisel Bilgilerim</a>
-    <a class="sidebar-item" href="#"><span class="icon"><i class="fas fa-phone"></i></span> İletişim Bilgilerim</a>
-    <button class="sidebar-accordion-btn" onclick="toggleAccordion(this)">
-      <span class="icon"><i class="fas fa-cog"></i></span> Hesap Yönetimi
-      <span class="chevron">▼</span>
-    </button>
-    <div class="sidebar-accordion-body">
-      <a class="sidebar-item" href="#"><span class="icon"><i class="fas fa-lock"></i></span> Şifremi Değiştir</a>
-      <a class="sidebar-item" href="#"><span class="icon"><i class="fas fa-snowflake"></i></span> Hesabımı Dondur</a>
-      <a class="sidebar-item sidebar-item-danger" href="#"><span class="icon"><i class="fas fa-trash-alt"></i></span> Hesabımı Sil</a>
+  <div class="filter-bar">
+    <div class="f-group">
+      <span class="f-lbl">Dönem</span>
+      <select class="f-sel">
+        <option>Tüm Zamanlar</option>
+        <option>Bu Yıl</option>
+        <option>Son 12 Ay</option>
+      </select>
     </div>
-    <div class="sidebar-divider"></div>
-    <a class="sidebar-item active" id="menu-bagislarim" href="#" onclick="showPage('bagislarim')"><span class="icon"><i class="fas fa-heart"></i></span> Bağışlarım</a>
-    <a class="sidebar-item new-item" id="menu-duzenli" href="#" onclick="showPage('duzenli')"><span class="icon"><i class="fas fa-sync-alt"></i></span> Düzenli Bağışlarım</a>
-    <div class="sidebar-divider"></div>
-    <a class="sidebar-item" href="#"><span class="icon"><i class="fas fa-sign-out-alt"></i></span> Oturumu Kapat</a>
-  </aside>
+    <div class="f-group">
+      <span class="f-lbl">Bağışçı Tipi</span>
+      <select class="f-sel">
+        <option>Tümü</option>
+        <option>Kayıtlı</option>
+        <option>Anonim</option>
+        <option>Düzenli (Abone)</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <span class="f-lbl">Kampanya</span>
+      <select class="f-sel">
+        <option>Tümü (Genel)</option>
+        <option>Deprem Bağışları</option>
+        <option>Filistin Yardımı</option>
+      </select>
+    </div>
+    <div class="f-group">
+      <span class="f-lbl">Kıta / Bölge</span>
+      <select class="f-sel">
+        <option>Tümü (Küresel)</option>
+        <option>Yurtiçi</option>
+        <option>Avrupa</option>
+        <option>Kuzey Amerika</option>
+      </select>
+    </div>
+    <button class="f-btn">Filtreleri Uygula</button>
+  </div>
 
-  <!-- MAIN -->
-  <main class="main">
+  <div class="panel-title">Panel 3 — Demografik ve Coğrafi Bağışçı Analizi</div>
 
-    <!-- ===== BAĞIŞLARIM SAYFASI ===== -->
-    <div id="page-bagislarim">
-      <div class="page-title">Bağışlarım</div>
+  <div class="kpi-row">
+    <div class="kpi kpi-blue">
+      <div class="kpi-lbl">Toplam Bağışçı Sayısı</div>
+      <div class="kpi-val">84.230</div>
+      <div class="kpi-sub"><span class="up">▲ %9.4</span> sistemdeki tekil kişi</div>
+    </div>
+    <div class="kpi kpi-orange">
+      <div class="kpi-lbl">Kayıtlı Bağışçı Sayısı</div>
+      <div class="kpi-val">60.770</div>
+      <div class="kpi-sub"><span class="up">▲ %12</span> kayıt olma eğilimi</div>
+    </div>
+    <div class="kpi kpi-gray">
+      <div class="kpi-lbl">Anonim Bağışçı Sayısı</div>
+      <div class="kpi-val">23.460</div>
+      <div class="kpi-sub">Kayıtsız hızlı bağış yapanlar</div>
+    </div>
+    <div class="kpi kpi-green">
+      <div class="kpi-lbl">Düzenli Bağışçı Sayısı</div>
+      <div class="kpi-val">12.450</div>
+      <div class="kpi-sub"><span class="up">▲ %5.2</span> aktif aboneler</div>
+    </div>
+    <div class="kpi kpi-purple">
+      <div class="kpi-lbl">Yurtdışı Bağışçılar</div>
+      <div class="kpi-val">4.730</div>
+      <div class="kpi-sub"><span class="up">▲ 64</span> farklı ülkeden</div>
+    </div>
+  </div>
 
-      <!-- STATS -->
-      <div class="stats-row">
-        <div class="stat-card">Toplam Bağış Sayınız<br><span class="amount" id="statSayi">—</span></div>
-        <div class="stat-card">Toplam TL Bağışınız<br><span class="amount" id="statTL">—</span></div>
-        <div class="stat-card">Toplam Euro Bağışınız<br><span class="amount" id="statEUR">0€</span></div>
-        <div class="stat-card">Toplam USD Bağışınız<br><span class="amount" id="statUSD">0$</span></div>
-        <div class="stat-card">Toplam GBP Bağışınız<br><span class="amount" id="statGBP">0£</span></div>
-      </div>
-
-      <!-- FILTERS -->
-      <div class="filter-section">
-        <input class="search-bar" type="text" placeholder="Ara..." id="searchInput" oninput="filterTable()">
-        <div class="filter-row">
-          <div class="filter-group">
-            <label>Başlangıç Tarihi</label>
-            <input type="text" placeholder="gg.aa.yyyy">
-          </div>
-          <div class="filter-group">
-            <label>Bitiş Tarihi</label>
-            <input type="text" placeholder="gg.aa.yyyy">
-          </div>
-          <div class="filter-group">
-            <label>Kampanya Adı</label>
-            <select><option>Tümü</option><option>Afet Kampanyası</option><option>Deprem Yardımı</option></select>
-          </div>
-          <div class="filter-group">
-            <label>Para Birimi</label>
-            <select><option>TRY</option><option>EUR</option><option>USD</option><option>GBP</option></select>
-          </div>
-          <div class="filter-group">
-            <label>Tutar</label>
-            <input type="text" id="tutarFilter" oninput="filterTable()">
-          </div>
-          <div class="filter-group">
-            <label>Bağış Türü</label>
-            <select id="turFilter" onchange="filterTable()">
-              <option value="">Tümü</option>
-              <option value="Düzenli Nakdi Bağış">Düzenli Nakdi Bağış</option>
-              <option value="Tek Seferlik Bağış">Tek Seferlik Bağış</option>
-            </select>
-          </div>
-          <div class="filter-right">
-            <button class="btn-filter">Gelişmiş Filtreleme</button>
-            <button class="btn-delete" onclick="clearFilters()" title="Filtreleri Temizle">🗑️</button>
-          </div>
+  <div class="two-col">
+    <div class="chart-box">
+      <div class="chart-title">Bağışçı Kayıt ve Sadakat Kırılımı</div>
+      <div class="chart-sub">Toplam kitlenin kendi içerisindeki dönüşüm hiyerarşisi.</div>
+      <div class="tree-wrap" id="tree-container">
         </div>
-      </div>
-
-      <!-- TABLE -->
-      <div class="table-wrapper">
-        <table id="mainTable">
-          <thead>
-            <tr>
-              <th class="sortable" onclick="sortTable(0)">Bağış Tarihi<span class="sort-icon"></span></th>
-              <th class="sortable" onclick="sortTable(1)">Bağış Kodu<span class="sort-icon"></span></th>
-              <th class="sortable" onclick="sortTable(2)">Kampanya Adı<span class="sort-icon"></span></th>
-              <th class="sortable" onclick="sortTable(3)">Birim Tutar<span class="sort-icon"></span></th>
-              <th class="sortable" onclick="sortTable(4)">Bağış Kanalı<span class="sort-icon"></span></th>
-              <th class="sortable" onclick="sortTable(5)">Bağış Kategorisi<span class="sort-icon"></span></th>
-              <th class="sortable" onclick="sortTable(6)">Bağış Türü<span class="sort-icon"></span></th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
     </div>
 
-    <!-- ===== DÜZENLİ BAĞIŞLARIM SAYFASI ===== -->
-    <div id="page-duzenli" style="display:none;">
-      <div class="page-title">Düzenli Bağışlarım</div>
-
-      <div class="duzenli-stats-row">
-        <div class="duzenli-stat">Aktif Talimat Sayısı<br><span class="amount" id="dStatSayi">—</span></div>
-        <div class="duzenli-stat">Toplam Aylık Tutar<br><span class="amount" id="dStatAylik">—</span></div>
-        <div class="duzenli-stat">Toplam Ödenen<br><span class="amount" id="dStatOdenen">—</span></div>
+    <div class="chart-box">
+      <div class="chart-title">Yurtiçi ve Yurtdışı Katılım Oranları</div>
+      <div class="chart-sub">Bağışçıların coğrafi çıkış noktalarına göre (IP/Kart bazlı) dağılımı.</div>
+      <div class="pie-container">
+        <div class="pie-canvas-wrap"><canvas id="c-donut-geo"></canvas></div>
+        <div class="pie-legend" id="leg-geo"></div>
       </div>
-
-      <div class="table-wrapper">
-        <table id="duzenliTable">
-          <thead>
-            <tr>
-              <th class="sortable" onclick="sortDuzenli(0)">Kampanya Adı<span class="sort-icon"></span></th>
-              <th class="sortable" onclick="sortDuzenli(1)">Talimat Başlangıç<span class="sort-icon"></span></th>
-              <th class="sortable" onclick="sortDuzenli(2)">Talimat Bitiş<span class="sort-icon"></span></th>
-              <th class="sortable" onclick="sortDuzenli(3)">Aylık Tutar<span class="sort-icon"></span></th>
-              <th class="sortable" onclick="sortDuzenli(4)">Geçen Ay / Toplam Ödenen<span class="sort-icon"></span></th>
-              <th>Kalan Süre</th>
-              <th>Durum</th>
-              <th>İşlem</th>
-            </tr>
-          </thead>
-          <tbody id="duzenliBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-  </main>
-</div>
-
-<!-- İPTAL ONAY MODALI -->
-<div class="modal-overlay" id="iptalModal">
-  <div class="modal">
-    <h3>⚠️ Talimat İptali</h3>
-    <p><span class="modal-kampanya" id="modalKampanya"></span> kampanyasına ait düzenli bağış talimatını iptal etmek istediğinize emin misiniz?</p>
-    <div class="modal-actions">
-      <button class="btn-modal-vazgec" onclick="closeModal()">Vazgeç</button>
-      <button class="btn-modal-iptal" onclick="confirmIptal()">Evet, İptal Et</button>
     </div>
   </div>
+
+  <div class="three-col">
+    <div class="chart-box">
+      <div class="chart-title">İllere Göre (İlk 10)</div>
+      <div class="chart-sub">Yurtiçi bağış yapan 79.500 kişinin illere göre dağılımı.</div>
+      <div class="bar-list" id="city-area"></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-title">Ülkelere Göre (İlk 7)</div>
+      <div class="chart-sub">Yurtdışından gelen 4.730 kişinin ülkelere göre dağılımı.</div>
+      <div class="bar-list" id="country-area"></div>
+    </div>
+
+    <div class="chart-box" style="border-top: 4px solid #107c41;">
+      <div class="chart-title">Düzenli Bağış Başlatan Kampanyalar</div>
+      <div class="chart-sub">Kampanyalara kayıtlı düzenli bağışçılar</div>
+      <div class="bar-list" id="regular-campaign-area"></div>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <div class="chart-title">En Yüksek Katkı Sağlayan Bireysel/Kurumsal Bağışçılar (Top 10)</div>
+    <div class="chart-sub">Hacimsel bazda sisteme en büyük finansal katkıyı sağlayan profiller ve toplam bağış tutarları.</div>
+    <div class="bar-list" id="top-donor-area" style="margin-top:8px;"></div>
+  </div>
+
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const allData = [
-  { tarih: "01.01.2026", kod: "WEB-TS-AFT-U00142-20260101-0001", kampanya: "Afet Yardım",    tutar: 10,  tutarStr: "10 TL",  kanal: "Web",        kategori: "Nakdi Bağış", tur: "Tek Seferlik Bağış" },
-  { tarih: "15.01.2026", kod: "WEB-TS-DEP-U00142-20260115-0001", kampanya: "Deprem Yardımı", tutar: 20,  tutarStr: "20 TL",  kanal: "Web",        kategori: "Nakdi Bağış", tur: "Tek Seferlik Bağış" },
-  { tarih: "16.02.2026", kod: "MOB-TS-AFT-U00142-20260216-0001", kampanya: "Afet Yardım",    tutar: 50,  tutarStr: "50 TL",  kanal: "Mobil",      kategori: "Nakdi Bağış", tur: "Tek Seferlik Bağış" },
-  { tarih: "20.02.2026", kod: "EFT-TS-AFT-U00142-20260220-0001", kampanya: "Afet Yardım",    tutar: 100, tutarStr: "100 TL", kanal: "EFT/HAVALE", kategori: "Nakdi Bağış", tur: "Tek Seferlik Bağış" },
-];
+// --- CHART.JS GLOBAL AYARLARI ---
+Chart.defaults.font.family = "'Segoe UI', 'Inter', sans-serif";
+Chart.defaults.color = '#605e5c';
+Chart.defaults.plugins.tooltip.backgroundColor = '#ffffff';
+Chart.defaults.plugins.tooltip.titleColor = '#252423';
+Chart.defaults.plugins.tooltip.bodyColor = '#252423';
+Chart.defaults.plugins.tooltip.borderColor = '#e1dfdd';
+Chart.defaults.plugins.tooltip.borderWidth = 1;
 
-let sortCol = -1;
-let sortDir = 1;
+// ==========================================
+// 1. BAĞIŞÇI HİYERARŞİSİ (MATRIX)
+// ==========================================
+const totalDonor = 84230;
+const kayitli = 60770;
+const anonim = 23460;
+const kayitliTek = 48320;
+const kayitliDuz = 12450;
 
-function kanalBadge(k) {
-  if (k === "Web")        return `<span class="badge badge-web">🌐 ${k}</span>`;
-  if (k === "Mobil")      return `<span class="badge badge-mobil">📱 ${k}</span>`;
-  if (k === "EFT/HAVALE") return `<span class="badge badge-eft">🏦 ${k}</span>`;
-  if (k === "Otomatik")   return `<span class="badge badge-duzenli">🔄 Web-Otomatik</span>`;
-  return k;
-}
-function kategoriBadge(k) {
-  if (k === "Nakdi Bağış")         return `<span class="badge badge-nakdi">${k}</span>`;
-  if (k === "Düzenli Nakdi Bağış") return `<span class="badge badge-duzenli">${k}</span>`;
-  return k;
-}
-function turBadge(t) {
-  if (t === "Düzenli Nakdi Bağış") return `<span class="badge badge-duzenli">${t}</span>`;
-  if (t === "Tek Seferlik Bağış")  return `<span class="badge badge-tekseferlik">${t}</span>`;
-  return t;
-}
+const pKayitli = ((kayitli / totalDonor) * 100).toFixed(1);
+const pAnonim  = ((anonim / totalDonor) * 100).toFixed(1);
+const pTek     = ((kayitliTek / kayitli) * 100).toFixed(1); 
+const pDuz     = ((kayitliDuz / kayitli) * 100).toFixed(1); 
 
-function renderTable(data) {
-  const tbody = document.getElementById('tableBody');
-  tbody.innerHTML = '';
-
-  if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#999; padding:20px;">Sonuç bulunamadı.</td></tr>';
-    return;
-  }
-
-  data.forEach(row => {
-    const tr = `<tr>
-      <td>${row.tarih}</td>
-      <td><strong>${row.kod}</strong></td>
-      <td>${row.kampanya}</td>
-      <td><strong>${row.tutarStr}</strong></td>
-      <td>${kanalBadge(row.kanal)}</td>
-      <td>${kategoriBadge(row.kategori)}</td>
-      <td>${turBadge(row.tur)}</td>
-    </tr>`;
-    tbody.insertAdjacentHTML('beforeend', tr);
-  });
-}
-
-function filterTable() {
-  const search = document.getElementById('searchInput').value.toLowerCase();
-  const tur    = document.getElementById('turFilter').value.toLowerCase();
-  const tutar  = document.getElementById('tutarFilter').value.toLowerCase();
-  const kaynak = window._tamData || allData;
-
-  let filtered = kaynak.filter(row => {
-    const matchSearch = !search ||
-      row.tarih.toLowerCase().includes(search) ||
-      row.kod.toLowerCase().includes(search) ||
-      row.kampanya.toLowerCase().includes(search) ||
-      row.kanal.toLowerCase().includes(search) ||
-      row.kategori.toLowerCase().includes(search) ||
-      row.tur.toLowerCase().includes(search);
-    const matchTur   = !tur   || row.tur.toLowerCase().includes(tur) || row.kategori.toLowerCase().includes(tur);
-    const matchTutar = !tutar || row.tutarStr.toLowerCase().includes(tutar);
-    return matchSearch && matchTur && matchTutar;
-  });
-
-  if (sortCol >= 0) {
-    filtered = sortData(filtered, sortCol, sortDir);
-  }
-  renderTable(filtered);
-}
-
-function sortData(data, col, dir) {
-  return [...data].sort((a, b) => {
-    const keys = ['tarih','kod','kampanya','tutar','kanal','kategori','tur'];
-    let va = a[keys[col]];
-    let vb = b[keys[col]];
-    // Tarih sıralama
-    if (col === 0) {
-      va = va.split('.').reverse().join('');
-      vb = vb.split('.').reverse().join('');
-    }
-    if (typeof va === 'number') return (va - vb) * dir;
-    return String(va).localeCompare(String(vb), 'tr') * dir;
-  });
-}
-
-function sortTable(col) {
-  const ths = document.querySelectorAll('th.sortable');
-  if (sortCol === col) {
-    sortDir = -sortDir;
-  } else {
-    sortCol = col;
-    sortDir = 1;
-  }
-  ths.forEach((th, i) => {
-    th.classList.remove('sort-asc','sort-desc');
-    if (i === col) th.classList.add(sortDir === 1 ? 'sort-asc' : 'sort-desc');
-  });
-  filterTable();
-}
-
-function clearFilters() {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('turFilter').value = '';
-  document.getElementById('tutarFilter').value = '';
-  filterTable();
-}
-
-// İlk yükleme
-renderTable(allData);
-
-// Kampanya → kısa kod eşlemesi
-const kampanyaKod = {
-  "Afet Yardım":      "AFT",
-  "Deprem Yardımı":   "DEP",
-  "Sudan Yardımı":    "SDN",
-  "Filistin Yardımı": "FLS",
-  "Somali Yardımı":   "SML",
-};
-
-// Düzenli bağışlardan tamamlanan ödemeleri hesapla ve birleştir
-function buildTamData() {
-  const duzenliOdemeler = [];
-  duzenliData.forEach(d => {
-    const aylar = gecenAySayisi(d.baslangic);
-    for (let i = 0; i < aylar; i++) {
-      const bas = parseDate(d.baslangic);
-      const odemeAy = new Date(bas.getFullYear(), bas.getMonth() + i, bas.getDate());
-      const gun = String(odemeAy.getDate()).padStart(2,'0');
-      const ay  = String(odemeAy.getMonth()+1).padStart(2,'0');
-      const yil = odemeAy.getFullYear();
-      const tarihStr = `${gun}.${ay}.${yil}`;
-      const tarihKod = `${yil}${ay}${gun}`;
-      const kamp = kampanyaKod[d.kampanya] || "GNL";
-      const seq  = String(i+1).padStart(4,'0');
-      duzenliOdemeler.push({
-        tarih: tarihStr,
-        kod: `AUT-DN-${kamp}-U00142-${tarihKod}-${seq}`,
-        kampanya: d.kampanya,
-        tutar: d.tutar,
-        tutarStr: `${d.tutar} TL`,
-        kanal: "Otomatik",
-        kategori: "Düzenli Nakdi Bağış",
-        tur: "Düzenli Nakdi Bağış"
-      });
-    }
-  });
-  return [...allData, ...duzenliOdemeler].sort((a,b) => {
-    const da = a.tarih.split('.').reverse().join('');
-    const db = b.tarih.split('.').reverse().join('');
-    return db.localeCompare(da);
-  });
-}
-
-function updateStats(data) {
-  const toplamTL = data.reduce((s,r) => s + r.tutar, 0);
-  document.getElementById('statSayi').textContent = data.length;
-  document.getElementById('statTL').textContent   = toplamTL + '₺';
-}
-
-function initBagislarim() {
-  const tamData = buildTamData();
-  updateStats(tamData);
-  renderTable(tamData);
-  // allData'yı da güncelle ki filtreler çalışsın
-  window._tamData = tamData;
-}
-
-// ===== DÜZENLİ BAĞIŞLARIM =====
-let duzenliData = [
-  { id: 1, kampanya: "Afet Yardım",      baslangic: "05.06.2025", bitis: "05.06.2026", tutar: 30,  tutarStr: "30 TL/ay",  durum: "Aktif" },
-  { id: 2, kampanya: "Deprem Yardımı",   baslangic: "20.08.2025", bitis: "20.08.2026", tutar: 30,  tutarStr: "30 TL/ay",  durum: "Aktif" },
-  { id: 3, kampanya: "Sudan Yardımı",    baslangic: "01.09.2025", bitis: "01.09.2026", tutar: 50,  tutarStr: "50 TL/ay",  durum: "Aktif" },
-  { id: 4, kampanya: "Filistin Yardımı", baslangic: "15.07.2025", bitis: "15.07.2026", tutar: 100, tutarStr: "100 TL/ay", durum: "Aktif" },
-  { id: 5, kampanya: "Somali Yardımı",   baslangic: "10.06.2025", bitis: "10.06.2026", tutar: 50,  tutarStr: "50 TL/ay",  durum: "Aktif" },
-];
-
-let duzenliSortCol = -1;
-let duzenliSortDir = 1;
-let iptalTargetId = null;
-
-function durumBadge(d) {
-  if (d === "Aktif")  return `<span class="badge badge-aktif">● Aktif</span>`;
-  if (d === "İptal")  return `<span class="badge badge-iptal">✕ İptal</span>`;
-  return d;
-}
-
-function parseDate(str) {
-  const [d, m, y] = str.split('.').map(Number);
-  return new Date(y, m - 1, d);
-}
-
-function gecenAySayisi(baslangicStr) {
-  const baslangic = parseDate(baslangicStr);
-  const bugun = new Date(2026, 2, 5); // Bugün: 05.03.2026
-  if (bugun < baslangic) return 0;
-  const yilFark = bugun.getFullYear() - baslangic.getFullYear();
-  const ayFark  = bugun.getMonth()    - baslangic.getMonth();
-  const toplamAy = yilFark * 12 + ayFark;
-  // Başlangıç günü henüz geçmediyse bu ayı sayma
-  const gecmis = bugun.getDate() >= baslangic.getDate() ? toplamAy + 1 : toplamAy;
-  return Math.max(0, gecmis);
-}
-
-function kalanSure(bitisStr) {
-  const bitis = parseDate(bitisStr);
-  const bugun = new Date(2026, 2, 5);
-  if (bitis <= bugun) return '<span style="color:#b71c1c;font-size:11px;">Süresi Doldu</span>';
-  const yilFark = bitis.getFullYear() - bugun.getFullYear();
-  const ayFark  = bitis.getMonth()    - bugun.getMonth();
-  const gunFark = bitis.getDate()     - bugun.getDate();
-  let toplamAy = yilFark * 12 + ayFark;
-  if (gunFark < 0) toplamAy -= 1;
-  const kalanGun = Math.round((bitis - bugun) / (1000 * 60 * 60 * 24));
-  const kalanGunKalan = kalanGun - toplamAy * 30;
-
-  if (toplamAy <= 0) {
-    return `<span style="color:#e65100;font-size:13px;font-weight:700;">${kalanGun}</span> <span style="color:#e65100;font-size:10px;">gün</span>`;
-  }
-  if (toplamAy < 12) {
-    return `<span style="color:#1a4a8e;font-size:14px;font-weight:800;">${toplamAy} ay</span> <span style="color:#888;font-size:10px;">${kalanGunKalan > 0 ? kalanGunKalan + ' gün' : ''}</span>`;
-  }
-  const yil = Math.floor(toplamAy / 12);
-  const ay  = toplamAy % 12;
-  return `<span style="color:#1a7a3c;font-size:14px;font-weight:800;">${yil} yıl${ay > 0 ? ' ' + ay + ' ay' : ''}</span> <span style="color:#888;font-size:10px;">${kalanGunKalan > 0 ? kalanGunKalan + ' gün' : ''}</span>`;
-}
-
-function renderDuzenli(data) {
-  // Stats güncelle
-  const aktif = data.filter(r => r.durum === 'Aktif');
-  const aylikToplam  = aktif.reduce((s, r) => s + r.tutar, 0);
-  const odenenToplam = data.reduce((s, r) => s + gecenAySayisi(r.baslangic) * r.tutar, 0);
-  document.getElementById('dStatSayi').textContent   = aktif.length;
-  document.getElementById('dStatAylik').textContent  = aylikToplam + '₺';
-  document.getElementById('dStatOdenen').textContent = odenenToplam + '₺';
-
-  const tbody = document.getElementById('duzenliBody');
-  tbody.innerHTML = '';
-  if (data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:#999;padding:20px;">Aktif düzenli bağış talimatı bulunmamaktadır.</td></tr>';
-    return;
-  }
-  data.forEach(row => {
-    const iptalDisabled = row.durum === 'İptal' ? 'disabled' : '';
-    const aylar = gecenAySayisi(row.baslangic);
-    const toplamOdenen = aylar * row.tutar;
-    const gecenAyStr = `<span style="font-weight:700">${aylar} ay</span> <span style="color:#888;font-size:11px;">/ ${toplamOdenen > 0 ? toplamOdenen + ' TL' : '—'}</span>`;
-    const tr = `<tr>
-      <td><strong>${row.kampanya}</strong></td>
-      <td>${row.baslangic}</td>
-      <td>${row.bitis}</td>
-      <td><strong>${row.tutarStr}</strong></td>
-      <td>${gecenAyStr}</td>
-      <td>${kalanSure(row.bitis)}</td>
-      <td>${durumBadge(row.durum)}</td>
-      <td><button class="btn-iptal" onclick="openModal(${row.id})" ${iptalDisabled}>Talimatı İptal Et</button></td>
-    </tr>`;
-    tbody.insertAdjacentHTML('beforeend', tr);
-  });
-}
-
-function sortDuzenli(col) {
-  const ths = document.querySelectorAll('#duzenliTable th.sortable');
-  if (duzenliSortCol === col) {
-    duzenliSortDir = -duzenliSortDir;
-  } else {
-    duzenliSortCol = col;
-    duzenliSortDir = 1;
-  }
-  ths.forEach((th, i) => {
-    th.classList.remove('sort-asc','sort-desc');
-    if (i === col) th.classList.add(duzenliSortDir === 1 ? 'sort-asc' : 'sort-desc');
-  });
-  const keys = ['kampanya','baslangic','bitis','tutar','tutar']; // index 4: toplam ödenen tutar bazlı sıralama
-  const sorted = [...duzenliData].sort((a, b) => {
-    let va = a[keys[col]], vb = b[keys[col]];
-    if (col === 1 || col === 2) {
-      va = va.split('.').reverse().join('');
-      vb = vb.split('.').reverse().join('');
-    }
-    if (typeof va === 'number') return (va - vb) * duzenliSortDir;
-    return String(va).localeCompare(String(vb), 'tr') * duzenliSortDir;
-  });
-  renderDuzenli(sorted);
-}
-
-function openModal(id) {
-  iptalTargetId = id;
-  const row = duzenliData.find(r => r.id === id);
-  document.getElementById('modalKampanya').textContent = row.kampanya;
-  document.getElementById('iptalModal').classList.add('open');
-}
-function closeModal() {
-  document.getElementById('iptalModal').classList.remove('open');
-  iptalTargetId = null;
-}
-function confirmIptal() {
-  if (iptalTargetId === null) return;
-  duzenliData = duzenliData.map(r => r.id === iptalTargetId ? {...r, durum: 'İptal'} : r);
-  renderDuzenli(duzenliData);
-  closeModal();
-}
-
-function toggleAccordion(btn) {
-  const body = btn.nextElementSibling;
-  btn.classList.toggle('open');
-  body.classList.toggle('open');
-}
-
-// Sayfa geçişi
-function showPage(page) {
-  document.getElementById('page-bagislarim').style.display = page === 'bagislarim' ? '' : 'none';
-  document.getElementById('page-duzenli').style.display   = page === 'duzenli'    ? '' : 'none';
-
-  document.getElementById('menu-bagislarim').classList.toggle('active',  page === 'bagislarim');
-  document.getElementById('menu-bagislarim').classList.toggle('new-item', false);
-  document.getElementById('menu-duzenli').classList.toggle('active',  page === 'duzenli');
-  document.getElementById('menu-duzenli').classList.toggle('new-item', page !== 'duzenli');
-
-  if (page === 'duzenli')    renderDuzenli(duzenliData);
-  if (page === 'bagislarim') initBagislarim();
-  return false;
-}
-
-// İlk yükleme
-initBagislarim();
-
-// Modal dışına tıklayınca kapat
-document.getElementById('iptalModal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
-</script>
-
-<!-- FOOTER -->
-<footer style="background:#1a1a2e; color:#a0aec0; padding:28px 32px; margin-top:0; font-size:12px;">
-  <div style="max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
-    <div style="display:flex; align-items:center; gap:14px;">
-      <img src="https://www.afad.gov.tr/kurumlar/afad.gov.tr/Tasarim/afad_logo_footer.png" alt="AFAD" style="height:40px; opacity:0.85;">
-      <div>
-        <div style="color:#fff; font-weight:600; font-size:12.5px;">T.C. İçişleri Bakanlığı</div>
-        <div style="font-size:11px; color:#718096;">Afet ve Acil Durum Yönetimi Başkanlığı</div>
-        <div style="font-size:10.5px; color:#4a5568; margin-top:3px;">© 2026 Tüm hakları saklıdır.</div>
-      </div>
-    </div>
-    <div style="display:flex; gap:18px; align-items:center;">
-      <a href="https://www.facebook.com/afadbaskanlik" target="_blank" style="color:#718096; transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#718096'">
-        <i class="fab fa-facebook-f fa-lg"></i>
-      </a>
-      <a href="https://twitter.com/afadbaskanlik" target="_blank" style="color:#718096; transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#718096'">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/></svg>
-      </a>
-      <a href="https://www.instagram.com/afadbaskanlik/" target="_blank" style="color:#718096; transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#718096'">
-        <i class="fab fa-instagram fa-lg"></i>
-      </a>
-      <a href="https://www.youtube.com/user/afadbaskanlik" target="_blank" style="color:#718096; transition:color 0.15s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#718096'">
-        <i class="fab fa-youtube fa-lg"></i>
-      </a>
-    </div>
+const treeHtml = `
+  <div class="tr-node">
+    <div class="tr-lbl">Toplam Bağışçı <span class="tr-pct">%100</span></div>
+    <div class="tr-bar-wrap"><div class="tr-bar" style="width:100%; background:#0054a6;"></div></div>
+    <div class="tr-val">${totalDonor.toLocaleString('tr-TR')}</div>
   </div>
-</footer>
 
+  <div class="tr-node tr-indent-1">
+    <div class="tr-lbl">Kayıtlı Bağışçı <span class="tr-pct">%${pKayitli}</span></div>
+    <div class="tr-bar-wrap"><div class="tr-bar" style="width:${pKayitli}%; background:#f47920;"></div></div>
+    <div class="tr-val">${kayitli.toLocaleString('tr-TR')}</div>
+  </div>
+
+  <div class="tr-node tr-indent-2">
+    <div class="tr-lbl" style="font-weight:500;">Tek Seferlik <span class="tr-pct">%${pTek}</span></div>
+    <div class="tr-bar-wrap"><div class="tr-bar" style="width:${pTek}%; background:#107c41;"></div></div>
+    <div class="tr-val">${kayitliTek.toLocaleString('tr-TR')}</div>
+  </div>
+
+  <div class="tr-node tr-indent-2">
+    <div class="tr-lbl" style="font-weight:500;">Düzenli (Abone) <span class="tr-pct">%${pDuz}</span></div>
+    <div class="tr-bar-wrap"><div class="tr-bar" style="width:${pDuz}%; background:#107c41;"></div></div>
+    <div class="tr-val">${kayitliDuz.toLocaleString('tr-TR')}</div>
+  </div>
+
+  <div class="tr-node tr-indent-1-alt">
+    <div class="tr-lbl">Anonim Bağışçı <span class="tr-pct">%${pAnonim}</span></div>
+    <div class="tr-bar-wrap"><div class="tr-bar" style="width:${pAnonim}%; background:#8a8886;"></div></div>
+    <div class="tr-val">${anonim.toLocaleString('tr-TR')}</div>
+  </div>
+`;
+document.getElementById('tree-container').innerHTML = treeHtml;
+
+// ==========================================
+// 2. YURTİÇİ VS YURTDIŞI (DONUT CHART)
+// ==========================================
+const geoData = [
+  { label: 'Yurtiçi (Türkiye)', count: 79500, color: '#0054a6' }, 
+  { label: 'Yurtdışı (Uluslararası)', count: 4730,  color: '#7c3aed' }
+];
+const totalGeo = geoData.reduce((acc, val) => acc + val.count, 0);
+
+new Chart(document.getElementById('c-donut-geo'), {
+  type: 'doughnut',
+  data: {
+    labels: geoData.map(d => d.label),
+    datasets: [{
+      data: geoData.map(d => d.count),
+      backgroundColor: geoData.map(d => d.color),
+      borderWidth: 2, borderColor: '#ffffff'
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '65%',
+    plugins: { 
+      legend: { display: false },
+      tooltip: { callbacks: { label: c => ` ${c.parsed.toLocaleString('tr-TR')} Kişi` } }
+    }
+  }
+});
+
+const legGeo = document.getElementById('leg-geo');
+geoData.forEach(d => {
+  const pct = ((d.count / totalGeo) * 100).toFixed(1);
+  legGeo.innerHTML += `
+    <div class="pleg-item">
+      <span class="pleg-dot" style="background:${d.color}"></span>
+      <span>${d.label}</span>
+      <span class="pleg-val">${d.count.toLocaleString('tr-TR')}</span>
+      <span class="pleg-pct" style="color:${d.color}">%${pct}</span>
+    </div>
+  `;
+});
+
+// ==========================================
+// 3. İLLERE GÖRE BAĞIŞÇI SAYISI
+// ==========================================
+const cities = [
+  { name: 'İstanbul', count: 28400 }, { name: 'Ankara', count: 11200 },
+  { name: 'İzmir', count: 7500 }, { name: 'Bursa', count: 4100 },
+  { name: 'Antalya', count: 3800 }, { name: 'Adana', count: 3100 },
+  { name: 'Konya', count: 2850 }, { name: 'Gaziantep', count: 2400 },
+  { name: 'Kocaeli', count: 2100 }, { name: 'Kayseri', count: 1800 }
+];
+const cityArea = document.getElementById('city-area');
+const maxCity = Math.max(...cities.map(c => c.count));
+
+cities.forEach(c => {
+  const pct = (c.count / maxCity * 100).toFixed(1);
+  cityArea.innerHTML += `
+    <div class="bar-row">
+      <span class="bar-lbl" title="${c.name}">${c.name}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct}%; background:#0054a6;"></div>
+      </div>
+      <span class="bar-val" style="width:50px;">${c.count.toLocaleString('tr-TR')}</span>
+    </div>
+  `;
+});
+
+// ==========================================
+// 4. ÜLKELERE GÖRE YURTDIŞI KATILIMI
+// ==========================================
+const countries = [
+  { name: 'Almanya', count: 1850 }, { name: 'Amerika Birleşik Dev.', count: 840 },
+  { name: 'Hollanda', count: 620 }, { name: 'Fransa', count: 430 },
+  { name: 'İngiltere (UK)', count: 380 }, { name: 'Avusturya', count: 210 },
+  { name: 'Belçika', count: 180 }
+];
+const countryArea = document.getElementById('country-area');
+const maxCountry = Math.max(...countries.map(c => c.count));
+
+countries.forEach(c => {
+  const pct = (c.count / maxCountry * 100).toFixed(1);
+  countryArea.innerHTML += `
+    <div class="bar-row">
+      <span class="bar-lbl" title="${c.name}">${c.name}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct}%; background:#7c3aed;"></div>
+      </div>
+      <span class="bar-val" style="width:50px;">${c.count.toLocaleString('tr-TR')}</span>
+    </div>
+  `;
+});
+
+// ==========================================
+// 5. DÜZENLİ BAĞIŞIN BAŞLADIĞI KAMPANYALAR
+// ==========================================
+const regCampaigns = [
+  { name: 'Filistin Yardımı', count: 5200 },
+  { name: 'Deprem Bağışları', count: 3800 },
+  { name: 'Gazze Zekat', count: 1450 },
+  { name: 'Genel Bağış', count: 1100 },
+  { name: 'Yangın ve Sel Afeti', count: 900 }
+];
+const regArea = document.getElementById('regular-campaign-area');
+const maxRegCamp = Math.max(...regCampaigns.map(c => c.count));
+
+regCampaigns.forEach(c => {
+  const pct = (c.count / maxRegCamp * 100).toFixed(1);
+  regArea.innerHTML += `
+    <div class="bar-row">
+      <span class="bar-lbl" title="${c.name}">${c.name}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct}%; background:#107c41;"></div>
+      </div>
+      <span class="bar-val" style="width:50px;">${c.count.toLocaleString('tr-TR')}</span>
+    </div>
+  `;
+});
+
+// ==========================================
+// 6. EN YÜKSEK BAĞIŞ YAPANLAR (TOP 10)
+// ==========================================
+const topDonors = [
+  { name: 'Ahmet Y***', amount: 1450000, type: 'Bireysel' },
+  { name: 'Global İnşaat A.Ş.', amount: 1250000, type: 'Kurumsal' },
+  { name: 'Mehmet K***', amount: 950000, type: 'Bireysel' },
+  { name: 'ABC Lojistik', amount: 820000, type: 'Kurumsal' },
+  { name: 'Ayşe D***', amount: 670000, type: 'Bireysel' },
+  { name: 'Zeynep T***', amount: 540000, type: 'Bireysel' },
+  { name: 'Güneş Holding', amount: 480000, type: 'Kurumsal' },
+  { name: 'Ali Y***', amount: 410000, type: 'Bireysel' },
+  { name: 'Hüseyin A***', amount: 360000, type: 'Bireysel' },
+  { name: 'Emine Ö***', amount: 310000, type: 'Bireysel' }
+];
+
+const donorArea = document.getElementById('top-donor-area');
+const maxDonor = Math.max(...topDonors.map(d => d.amount));
+
+topDonors.forEach(d => {
+  const pct = (d.amount / maxDonor * 100).toFixed(1);
+  const color = d.type === 'Kurumsal' ? '#f47920' : '#0054a6'; // Bireyseller Mavi, Kurumsallar Turuncu
+  
+  donorArea.innerHTML += `
+    <div class="bar-row">
+      <span class="bar-lbl" style="width:140px;" title="${d.name} (${d.type})">${d.name}</span>
+      <div class="bar-track">
+        <div class="bar-fill" style="width:${pct}%; background:${color};"></div>
+      </div>
+      <span class="bar-val" style="width:90px;">₺${d.amount.toLocaleString('tr-TR')}</span>
+    </div>
+  `;
+});
+
+</script>
 </body>
 </html>
