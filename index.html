@@ -69,6 +69,11 @@ body{font-family:'Inter',sans-serif;background:#f3f2f1;color:#252423;}
 .bar-fill{height:100%; border-radius:2px; display:flex; align-items:center; padding-left:8px;}
 .bar-val{width:60px; font-size:12px; font-weight:600; color:#252423; text-align:right; flex-shrink:0;}
 
+/* COHORT EXPORT CARDS (YENİ EKLENEN) */
+.cohort-val { font-size:26px; font-weight:300; color:#252423; margin-top:auto; margin-bottom:14px; letter-spacing:-0.5px;}
+.cohort-btn { background:#fff; border:1px solid #c8d4e8; color:#0054a6; font-size:11px; font-weight:600; padding:10px 0; border-radius:2px; cursor:pointer; transition:all 0.2s; width:100%; text-align:center;}
+.cohort-btn:hover { background:#f3f2f1; border-color:#0054a6; }
+
 </style>
 </head>
 <body>
@@ -158,6 +163,29 @@ body{font-family:'Inter',sans-serif;background:#f3f2f1;color:#252423;}
         <div class="pie-canvas-wrap"><canvas id="c-donut-geo"></canvas></div>
         <div class="pie-legend" id="leg-geo"></div>
       </div>
+    </div>
+  </div>
+
+  <div class="three-col">
+    <div class="chart-box" style="border-top: 4px solid #c0392b;">
+      <div class="chart-title">Kayıtlı Olup Bağış Yapmayanlar</div>
+      <div class="chart-sub">Sisteme üye olmuş ancak henüz finansal bir işlem gerçekleştirmemiş pasif kullanıcılar.</div>
+      <div class="cohort-val">18.540 <span style="font-size:12px;color:#605e5c;font-weight:500;">Kişi</span></div>
+      <button class="cohort-btn" onclick="alert('Kayıtlı olup hiç bağış yapmayan 18.540 kullanıcının e-posta/telefon listesi CSV olarak indiriliyor...')">↓ Listeyi Dışa Aktar (.csv)</button>
+    </div>
+
+    <div class="chart-box" style="border-top: 4px solid #f47920;">
+      <div class="chart-title">Son 6 Ayda Tek İşlem Yapanlar</div>
+      <div class="chart-sub">Son 6 aylık periyotta sisteme girip sadece 1 defa (tek seferlik) bağış yapanlar.</div>
+      <div class="cohort-val">24.120 <span style="font-size:12px;color:#605e5c;font-weight:500;">Kişi</span></div>
+      <button class="cohort-btn" onclick="alert('Son 6 ayda sadece 1 defa bağış yapan 24.120 kullanıcının listesi CSV olarak indiriliyor...')">↓ Listeyi Dışa Aktar (.csv)</button>
+    </div>
+
+    <div class="chart-box" style="border-top: 4px solid #f47920;">
+      <div class="chart-title">Son 12 Ayda Tek İşlem Yapanlar</div>
+      <div class="chart-sub">Son 1 yıllık periyotta sisteme girip sadece 1 defa (tek seferlik) bağış yapanlar.</div>
+      <div class="cohort-val">42.650 <span style="font-size:12px;color:#605e5c;font-weight:500;">Kişi</span></div>
+      <button class="cohort-btn" onclick="alert('Son 12 ayda sadece 1 defa bağış yapan 42.650 kullanıcının listesi CSV olarak indiriliyor...')">↓ Listeyi Dışa Aktar (.csv)</button>
     </div>
   </div>
 
